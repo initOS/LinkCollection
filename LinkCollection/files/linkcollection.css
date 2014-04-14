@@ -1,0 +1,8 @@
+/* The following MantisBT default css classes are used:
+	table.width100
+	td.center, td.form-title
+	span.small
+ */
+
+td.linkcollection-notes		{ background-color: #e8e8e8; color: #000000; width: 75%; vertical-align: top; }
+td.linkcollection-links		{ background-color: #c8c8e8; color: #000000; width: 25%; line-height: 1.4; vertical-align: top; }
