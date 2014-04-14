@@ -60,7 +60,7 @@
      * @param integer Bug ID
      * @return boolean True if the tag is attached
      */
-     function linkcollection_bugnote_is_collected( $p_link_id, $p_bugnote_id ) {
+    function linkcollection_bugnote_is_collected( $p_link_id, $p_bugnote_id ) {
         $t_link_bugnote_table = plugin_table('link_bugnote');
 
         $query = "SELECT * FROM $t_link_bugnote_table

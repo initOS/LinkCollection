@@ -40,7 +40,7 @@ collapse_open( 'linkcollection' ); ?>
 		# for each collected link of the current bug grouped by link id
 		for ( $i=0; $i < $num_links; $i++) {
 			$t_collected_link = $t_collected_links[$i];?>
-			<tr id="lc<?php echo $t_collected_link->id ?>" >
+			<tr id="lc<?php echo $t_collected_link->id ?>">
 			<?php # --- left column ------------------------------------------------------------------------?>
 			     <td class='linkcollection-links'>
 			         <?php echo string_display_links($t_collected_link->url);?>
@@ -48,11 +48,10 @@ collapse_open( 'linkcollection' ); ?>
             <?php # --- right column ------------------------------------------------------------------------?>
                 <td class='linkcollection-notes'>
 			        <?php foreach ($t_collected_link->bugnotes as $bugnote){?>
-                        <div class='small'>
-                            <a href="<?php echo string_get_bugnote_view_url($p_bug_id, $bugnote) ?>"
-                                title="<?php echo lang_get( 'bugnote_link_title' ) ?>"><?php echo bugnote_format_id( $bugnote)?>
-					        </a>
-					    </div>
+                        <span class='small'>
+                            <a href="<?php echo string_get_bugnote_view_url($p_bug_id, $bugnote);?>"
+                                title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $bugnote)?></a>
+					    </span>
                     <?php } ?>
 			    </td>
 			</tr>

@@ -82,7 +82,7 @@ class LinkCollectionPlugin extends MantisPlugin {
             }
              # reset flag
     		plugin_config_set('first_use', 'false');
-    		}
+    	}
     }
 
     # When a new bugnote is added, seachr links and add them to database table.
