@@ -76,7 +76,8 @@
 class CollectedLink {
     var $id;
 	var $url;
-	var $bugnotes = array();
+	var $bugnotes = array();           //bugnotes from view, e.g. current bug
+	var $global_bugnotes = array();    //other bugnotes, e.g. from an other bug
 }
 
 
@@ -128,7 +129,13 @@ function linkcollection_get_all_collected_links( $p_bug_id ) {
             } else {
                 $t_link = $g_cache_collected_link[$row['id']];
             }
-            $t_link->bugnotes[] = $row['bugnote_id'];
+            if (in_array($row['bugnote_id'], $t_bug_bugnote_ids)){
+                $t_link->bugnotes[] = array('id' => $row['bugnote_id'],
+                                            'bug_id' => $p_bug_id);
+            } else {
+                $t_link->global_bugnotes[] = array('id' => $row['bugnote_id'],
+                                                   'bug_id' => bugnote_get_field($row['bugnote_id'], 'bug_id'));
+            }
 			$g_cache_collected_link[$t_link->id] = $t_link;
 		}
 		$g_cache_collected_links[(int)$p_bug_id] = $t_links;

@@ -47,11 +47,27 @@ collapse_open( 'linkcollection' ); ?>
 			     </td>
             <?php # --- right column ------------------------------------------------------------------------?>
                 <td class='linkcollection-notes'>
-			        <?php foreach ($t_collected_link->bugnotes as $bugnote){?>
-                        <span class='small'>
-                            <a href="<?php echo string_get_bugnote_view_url($p_bug_id, $bugnote);?>"
-                                title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $bugnote)?></a>
-					    </span>
+                    <div>
+                        <span>Current issue:</span> <?php # TODO Sprachdatei einbinden ?>
+                        <?php foreach ($t_collected_link->bugnotes as $bugnote){?>
+                            <span class='small'>
+                                :<a href="<?php echo string_get_bugnote_view_url($p_bug_id, $bugnote['id']);?>"
+                                 title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $bugnote['id'])?></a>
+                            </span>
+                        <?php } ?>
+                    </div>
+                    <?php if ($t_collected_link->global_bugnotes){?>
+                        <div>
+                            <span>Other issues:</span><?php # TODO Sprachdatei einbinden ?>
+                            <?php foreach ($t_collected_link->global_bugnotes as $bugnote){?>
+                                <span class='small'>
+                                    <a href="<?php echo string_get_bug_view_url($bugnote['bug_id']);?>"
+                                     title="<?php ;?>"><?php echo bug_format_id($bugnote['bug_id'])?></a>:<a
+                                     href="<?php echo string_get_bugnote_view_url($bugnote['bug_id'], $bugnote['id']);?>"
+                                     title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $bugnote['id'])?></a>
+                                </span>
+                            <?php } ?>
+                        </div>
                     <?php } ?>
 			    </td>
 			</tr>
