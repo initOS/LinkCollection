@@ -48,24 +48,31 @@ collapse_open( 'linkcollection' ); ?>
             <?php # --- right column ------------------------------------------------------------------------?>
                 <td class='linkcollection-notes'>
                     <div>
-                        <span>Current issue:</span> <?php # TODO Sprachdatei einbinden ?>
-                        <?php foreach ($t_collected_link->bugnotes as $bugnote){?>
+                        <span>Current issue:</span> <?php # TODO Sprachdatei einbinden
+                        $t_bug = $p_bug_id;
+                        $t_bugnotes = $t_collected_link->bugs[$t_bug]; ?>
+                        <?php foreach ($t_bugnotes as $t_bugnote){?>
                             <span class='small'>
-                                :<a href="<?php echo string_get_bugnote_view_url($p_bug_id, $bugnote['id']);?>"
-                                 title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $bugnote['id'])?></a>
+                                 :<a href="<?php echo string_get_bugnote_view_url($t_bug, $t_bugnote);?>"
+                                 title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $t_bugnote)?></a>
                             </span>
-                        <?php } ?>
+                        <?php }?>
                     </div>
-                    <?php if ($t_collected_link->global_bugnotes){?>
+                    <?php if (count($t_collected_link->bugs) > 1){ #TODO change output style similar to ~bugnote_id?>
                         <div>
                             <span>Other issues:</span><?php # TODO Sprachdatei einbinden ?>
-                            <?php foreach ($t_collected_link->global_bugnotes as $bugnote){?>
-                                <span class='small'>
-                                    <a href="<?php echo string_get_bug_view_url($bugnote['bug_id']);?>"
-                                     title="<?php ;?>"><?php echo bug_format_id($bugnote['bug_id'])?></a>:<a
-                                     href="<?php echo string_get_bugnote_view_url($bugnote['bug_id'], $bugnote['id']);?>"
-                                     title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $bugnote['id'])?></a>
-                                </span>
+                            <?php foreach ($t_collected_link->bugs as $t_bug => $t_bugnotes){?>
+                                <?php if ($t_bug == $p_bug_id) {
+                                	continue;
+                                }?>
+                                <?php foreach ($t_bugnotes as $t_bugnote){?>
+                                    <span class='small'>
+                                        <a href="<?php echo string_get_bug_view_url($t_bug);?>"
+                                         title="<?php ;?>"><?php echo bug_format_id($t_bug)?></a>:<a
+                                         href="<?php echo string_get_bugnote_view_url($t_bug, $t_bugnote);?>"
+                                         title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $t_bugnote)?></a>
+                                    </span>
+                                <?php }?>
                             <?php } ?>
                         </div>
                     <?php } ?>

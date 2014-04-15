@@ -21,7 +21,9 @@ class LinkCollectionPlugin extends MantisPlugin {
     # Hook events
     function hooks() {
         return array(
-                'EVENT_BUGNOTE_ADD' => 'new_bugnote',				# Scan for Links, if a new bug not was created
+                'EVENT_BUGNOTE_ADD' => 'new_bugnote',				# Scan for Links, if a new bugnote was created
+                'EVENT_BUGNOTE_DELETED' => 'delete_bugnote',        # Delete relation from link to bugnot
+                'EVENT_BUGNOTE_EDIT' => 'edit_butnote',             # Reconnect links
                 'EVENT_VIEW_BUG_EXTRA' => 'display_links',			# Display Links in bug view
                 'EVENT_CORE_READY' => 'initialise',					# Initialise Plugin after core is ready
         );
@@ -88,6 +90,24 @@ class LinkCollectionPlugin extends MantisPlugin {
     # When a new bugnote is added, seachr links and add them to database table.
     function new_bugnote( $p_event, $p_bug_id, $p_note_id ){
         $this->search_and_store_links($p_note_id );
+    }
+
+    function delete_bugnote($p_event, $p_bug_id, $p_note_id){
+        $c_bugnote_id = db_prepare_int( $p_note_id );
+        $t_relation_table = plugin_table('link_bugnote');
+
+        # Remove the relation
+        $query = 'DELETE FROM ' . $t_relation_table . ' WHERE bugnote_id=' . db_param();
+        db_query_bound( $query, Array( $c_bugnote_id ) );
+
+        return true;
+    }
+
+    function edit_butnote($p_event, $p_bug_id, $p_note_id){
+        # Delete connection
+        $this->delete_bugnote($p_event, $p_bug_id, $p_note_id);
+        # Reconnect
+        $this->new_bugnote($p_event, $p_bug_id, $p_note_id);
     }
 
     # Display link overview in bug view
