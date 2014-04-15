@@ -67,10 +67,7 @@ collapse_open( 'linkcollection' ); ?>
                                 }?>
                                 <?php foreach ($t_bugnotes as $t_bugnote){?>
                                     <span class='small'>
-                                        <a href="<?php echo string_get_bug_view_url($t_bug);?>"
-                                         title="<?php ;?>"><?php echo bug_format_id($t_bug)?></a>:<a
-                                         href="<?php echo string_get_bugnote_view_url($t_bug, $t_bugnote);?>"
-                                         title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $t_bugnote)?></a>
+                                        <?php echo string_process_bugnote_link(config_get('bugnote_link_tag').$t_bugnote);?>
                                     </span>
                                 <?php }?>
                             <?php } ?>
