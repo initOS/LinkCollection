@@ -8,10 +8,8 @@
 	#				TODO Sprachdatei einbinden
 	#			Wenn kein Link vorhanden, Nachricht ausgeben - implementiert
 
-echo '<link rel="stylesheet" type="text/css" href="', plugin_file( 'linkcollection.css' ), '"/>';
-
 # get the LinkCollection data of the current bug
-$t_collected_links = linkcollection_get_all_collected_links( $p_bug_id); #TODO sichtbare Links filtern
+$t_collected_links = linkcollection_get_collection_bug( $p_bug_id, TRUE); #TODO sichtbare Links filtern
 $num_links = count( $t_collected_links );
 ?>
 <?php # LinkCollection BEGIN ?>
@@ -49,8 +47,7 @@ collapse_open( 'linkcollection' ); ?>
                 <td class='linkcollection-notes'>
                     <div>
                         <span>Current issue:</span> <?php # TODO Sprachdatei einbinden
-                        $t_bug = $p_bug_id;
-                        $t_bugnotes = $t_collected_link->bugs[$t_bug]; ?>
+                        $t_bugnotes = $t_collected_link->bugnotes[$p_bug_id];?>
                         <?php foreach ($t_bugnotes as $t_bugnote){?>
                             <span class='small'>
                                  :<a href="<?php echo string_get_bugnote_view_url($t_bug, $t_bugnote);?>"
@@ -61,7 +58,7 @@ collapse_open( 'linkcollection' ); ?>
                     <?php if (count($t_collected_link->bugs) > 1){ #TODO change output style similar to ~bugnote_id?>
                         <div>
                             <span>Other issues:</span><?php # TODO Sprachdatei einbinden ?>
-                            <?php foreach ($t_collected_link->bugs as $t_bug => $t_bugnotes){?>
+                            <?php foreach ($t_collected_link->bugnotes as $t_bug => $t_bugnotes){?>
                                 <?php if ($t_bug == $p_bug_id) {
                                 	continue;
                                 }?>
@@ -69,7 +66,7 @@ collapse_open( 'linkcollection' ); ?>
                                     <span class='small'>
                                         <?php echo string_process_bugnote_link(config_get('bugnote_link_tag').$t_bugnote);?>
                                     </span>
-                                <?php }?>
+                                <?php } ?>
                             <?php } ?>
                         </div>
                     <?php } ?>

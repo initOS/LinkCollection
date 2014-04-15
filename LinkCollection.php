@@ -14,7 +14,7 @@ class LinkCollectionPlugin extends MantisPlugin {
                 );
 
         $this->author = 'Katja Matthes';                # Author/team name
-        $this->contact = 'katja.matthes@initos.com';    # Author/team e-mail address
+        $this->contact = 'katja.matthes-at-initos.com';    # Author/team e-mail address
         $this->url = 'http://www.initos.com';           # Support webpage
     }
 
@@ -26,6 +26,8 @@ class LinkCollectionPlugin extends MantisPlugin {
                 'EVENT_BUGNOTE_EDIT' => 'edit_butnote',             # Reconnect links
                 'EVENT_VIEW_BUG_EXTRA' => 'display_links',			# Display Links in bug view
                 'EVENT_CORE_READY' => 'initialise',					# Initialise Plugin after core is ready
+                'EVENT_LAYOUT_RESOURCES' => 'resources',            # Add resources (css)
+                'EVENT_MENU_MAIN_FRONT' => 'menu_link',      # Add menu link
         );
     }
 
@@ -143,6 +145,25 @@ class LinkCollectionPlugin extends MantisPlugin {
             }
         }
 	}
+
+	/**
+	 * Load css resource.
+	 */
+	public function resources($p_event) {
+	    $resources = '<link rel="stylesheet" type="text/css" href="' . plugin_file("linkcollection.css") . '" />';
+	    return $resources;
+	}
+
+	/**
+	 * Add link to main menu
+	 * @param $p_event
+	 */
+	function menu_link($p_event) {
+	    return array (
+	            '<a href="' . plugin_page('view_all_links_page') . '">' . 'Links' .'</a>'
+	    );
+	}
+
 
 
 

@@ -76,64 +76,142 @@
 class CollectedLink {
     var $id;
 	var $url;
-	var $bugs = array();               //bug_id with bugnote_ids
+	var $projects = array();           //array with project ids
+	var $bugs = array();               //array of array with bug ids, key is project_id
+	var $bugnotes = array();           //array of array with bugnote ids, key is bug_id
 }
 
 
 
 /**
  * Build the link collection array for the given bug_id.
- * Return CollectedLink class object with raw values from the tables except the field
+ * Return CollectedLink class object with raw values from the tables.
  * The data is not filtered by VIEW_STATE !!
  * @param int $p_bug_id bug id
  * @return array array of collected links
  * @access public
  */
 # inspired by bugnote_api -> function bugnote_get_all_bugnotes( $p_bug_id )
-function linkcollection_get_all_collected_links( $p_bug_id ) {
-	global $g_cache_collected_links, $g_cache_collected_link;
+function linkcollection_get_collection_bug( $p_bug_id, $p_thoroughly_mode = FALSE ) {
+	global $g_cache_collected_bug_links;
 
-	if( !isset( $g_cache_collected_links ) ) {
-		$g_cache_collected_links = array();
+	if( !isset( $g_cache_collected_bug_links ) ) {
+		$g_cache_collected_bug_links = array();
 	}
 
-	if( !isset( $g_cache_collected_link ) ) {
-		$g_cache_collected_link = array();
-	}
-
-	if( !isset( $g_cache_collected_links[(int)$p_bug_id] ) ) {
-	    $t_links = array();
-
+	if( !isset( $g_cache_collected_bug_links[(int)$p_bug_id] ) ) {
+        #get affected bugnote ids as array
 	    $t_bug_bugnotes = bugnote_get_all_bugnotes( $p_bug_id );
 	    $t_bug_bugnote_ids = array_map(function($a){return $a->id;}, $t_bug_bugnotes);
 
-	    $t_relation_table = plugin_table('link_bugnote');
-	    $t_link_table = plugin_table('link');
-	    $query = "SELECT links.id, links.url, relation.bugnote_id
-                    FROM $t_link_table AS links
-                    JOIN $t_relation_table AS relation
-                    ON (links.id = relation.link_id)
-                    WHERE links.id IN (SELECT link_id FROM $t_relation_table
-	                   WHERE bugnote_id IN (".implode(',',$t_bug_bugnote_ids)."))
-	                ORDER BY links.url";
-	    $t_result = db_query_bound( $query, array());
 
-	    $last_id = -1;
-	   while( $row = db_fetch_array( $t_result ) ) {
-            if (!array_key_exists($row['id'],$g_cache_collected_link)){
-                $t_link = new CollectedLink();
-                $t_link->id = $row['id'];
-                $t_link->url = $row['url'];
-                $t_links[] = $t_link;
-            } else {
-                $t_link = $g_cache_collected_link[$row['id']];
-            }
-            $t_link->bugs[bugnote_get_field($row['bugnote_id'], 'bug_id')][] = $row['bugnote_id'];
-			$g_cache_collected_link[$t_link->id] = $t_link;
-		}
-		$g_cache_collected_links[(int)$p_bug_id] = $t_links;
+	    $g_cache_collected_bug_links[(int)$p_bug_id] = _linkcollection_get_collection($t_bug_bugnote_ids, $p_thoroughly_mode);
 	}
 
-	return $g_cache_collected_links[(int)$p_bug_id];
+	return $g_cache_collected_bug_links[(int)$p_bug_id];
 }
 
+/**
+ * Build the link collection array for the given project_id.
+ * Return CollectedLink class object with raw values from the table.
+ * The data is not filtered by VIEW_STATE !!
+ * @param int $p_project_id project id
+ * @return array array of collected links
+ * @access public
+ */
+function linkcollection_get_collection_project( $p_project_id, $p_thoroughly_mode = FALSE ) {
+    global $g_cache_collected_project_links;
+
+    if( !isset( $g_cache_collected_project_links ) ) {
+        $g_cache_collected_project_links = array();
+    }
+
+    if( !isset( $g_cache_collected_project_links[(int)$p_project_id] ) ) {
+        #get affected bugnote ids as array
+        $c_project_id = db_prepare_int($p_project_id);
+        $t_bugnote_table = db_get_table('mantis_bugnote_table');
+        $t_bug_table = db_get_table('mantis_bug_table');
+
+        if( ALL_PROJECTS != $c_project_id ) {
+    		$t_project_where = "WHERE bug.project_id = $c_project_id";
+    	} else {
+    		$t_project_where = '';
+        }
+        $query = "SELECT bugnote.id AS bugnote_id, bug.id AS bug_id
+        FROM $t_bugnote_table AS bugnote
+        LEFT JOIN $t_bug_table AS bug
+        ON (bugnote.bug_id = bug.id)
+        $t_project_where";
+
+        $t_result = db_query_bound( $query, array());
+        $t_bug_bugnote_ids = array();
+
+        while( $row = db_fetch_array( $t_result ) ) {
+            $t_bug_bugnote_ids[] = $row['bugnote_id'];
+        }
+
+        $g_cache_collected_project_links[(int)$p_project_id] = _linkcollection_get_collection($t_bug_bugnote_ids, $p_thoroughly_mode);
+    }
+
+    return $g_cache_collected_project_links[(int)$p_project_id];
+
+
+
+
+}
+/**
+ * Build the link collection array for the given bugnotes.
+ * Return CollectedLink class object with raw values from the table.
+ * The data is not filtered by VIEW_STATE !!
+ * @param int $p_bug_bugnote_ids ids of bugnotes
+ * @param $p_thoroughly_mode true - also collect bugnotes from other bugs or projects
+ * @return array array of collected links
+*/
+function _linkcollection_get_collection($p_bug_bugnote_ids, $p_thoroughly_mode = FALSE){
+    global $g_cache_collected_links;
+
+    if( !isset( $g_cache_collected_links ) ) {
+        $g_cache_collected_links = array();
+    }
+
+    $t_links = array();
+    $t_relation_table = plugin_table('link_bugnote');
+    $t_link_table = plugin_table('link');
+
+    $t_where_thoroughly = '';
+    if ($p_thoroughly_mode){
+        $t_where_thoroughly = "WHERE links.id IN (SELECT link_id FROM $t_relation_table
+                                WHERE bugnote_id IN (".implode(',',$p_bug_bugnote_ids)."))";
+    } else {
+        $t_where_thoroughly = "WHERE bugnote_id IN (".implode(',',$p_bug_bugnote_ids).")";
+    }
+
+
+    $query = "SELECT links.id, links.url, relation.bugnote_id
+    FROM $t_link_table AS links
+    JOIN $t_relation_table AS relation
+    ON (links.id = relation.link_id)
+    $t_where_thoroughly
+    ORDER BY links.url";
+
+    $t_result = db_query_bound( $query, array());
+
+    while( $row = db_fetch_array( $t_result ) ) {
+	    if (!array_key_exists($row['id'],$g_cache_collected_links)){ #create new CollectedLink
+	    $t_link = new CollectedLink();
+	    $t_link->id = $row['id'];
+	    $t_link->url = $row['url'];
+	    $t_links[] = $t_link;
+	    $g_cache_collected_links[$t_link->id] = $t_link;
+        } else {
+            $t_link = $g_cache_collected_links[$row['id']]; #load CollectedLin
+        }
+        # collect ids of bugnote, bug and project
+        $t_bug = bugnote_get_field($row['bugnote_id'], 'bug_id');
+        $t_project = bug_get_field($t_bug, 'project_id');
+        $t_link->projects[] = $t_project;
+        $t_link->bugs[$t_project][] = $t_bug;
+        $t_link->bugnotes[$t_bug][] = $row['bugnote_id'];
+    }
+    return $t_links;
+}
