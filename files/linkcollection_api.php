@@ -26,6 +26,11 @@ along with BoxesAsTabs.  If not, see <http://www.gnu.org/licenses/>.
  * @link http://www.initos.com
  */
 
+require_once( 'user_api.php' );
+require_once( 'bugnote_api.php' );
+require_once( 'database_api.php' );
+require_once( 'authentication_api.php' );
+
     /**
      * Collect the link in.
      * @param char link's url
@@ -123,7 +128,7 @@ function linkcollection_get_collection_bug( $p_bug_id, $p_thoroughly_mode = FALS
  * @return array array of collected links
  * @access public
  */
-function linkcollection_get_collection_project( $p_project_id, $p_thoroughly_mode = FALSE ) {
+function linkcollection_get_collection_project($p_project_id, $p_thoroughly_mode = FALSE ) {
     global $g_cache_collected_project_links;
 
     if( !isset( $g_cache_collected_project_links ) ) {
@@ -132,20 +137,17 @@ function linkcollection_get_collection_project( $p_project_id, $p_thoroughly_mod
 
     if( !isset( $g_cache_collected_project_links[(int)$p_project_id] ) ) {
         #get affected bugnote ids as array
-        $c_project_id = db_prepare_int($p_project_id);
         $t_bugnote_table = db_get_table('mantis_bugnote_table');
         $t_bug_table = db_get_table('mantis_bug_table');
 
-        if( ALL_PROJECTS != $c_project_id ) {
-    		$t_project_where = "WHERE bug.project_id = $c_project_id";
-    	} else {
-    		$t_project_where = '';
-        }
+        $t_project_ids = user_get_all_accessible_projects(auth_get_current_user_id(), $p_project_id);
+        $c_project_ids = db_prepare_string(implode(',',$t_project_ids));
+
         $query = "SELECT bugnote.id AS bugnote_id, bug.id AS bug_id
         FROM $t_bugnote_table AS bugnote
         LEFT JOIN $t_bug_table AS bug
         ON (bugnote.bug_id = bug.id)
-        $t_project_where";
+        WHERE bug.project_id IN ($c_project_ids)";
 
         $t_result = db_query_bound( $query, array());
         $t_bug_bugnote_ids = array();
