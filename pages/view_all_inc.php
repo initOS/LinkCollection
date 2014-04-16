@@ -29,7 +29,7 @@ $t_project_id = helper_get_current_project();
 $t_collected_links = linkcollection_get_collection_project($t_project_id, FALSE);
 ?>
 <!-- Link list -->
-
+<br/>
 <table id="linklist" class="width100" cellspacing="1">
     <tbody>
         <tr class="row-category">
