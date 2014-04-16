@@ -27,16 +27,31 @@ require_once( 'helper_api.php' );
 $t_project_id = helper_get_current_project();
 
 $t_collected_links = linkcollection_get_collection_project($t_project_id, FALSE);
+?>
+<!-- Link list -->
 
-foreach ($t_collected_links AS $t_collected_link){?>
-    <div>
-        <span><?php echo string_display_links($t_collected_link->url);?></span>
-        <?php foreach ($t_collected_link->bugnotes as $t_bug => $t_bugnotes){?>
-            <?php foreach ($t_bugnotes as $t_bugnote){?>
-                <span class='small'>
-                    <?php echo string_process_bugnote_link(config_get('bugnote_link_tag').$t_bugnote);?>
-                </span>
-            <?php }?>
-        <?php }?>
-    </div>
-<?php }
+<table id="linklist" class="width100" cellspacing="1">
+    <tbody>
+        <tr class="row-category">
+            <td><?php echo plugin_lang_get('url');?></td>
+            <td><?php echo plugin_lang_get('bugnotes');?></td>
+        </tr>
+        <tr class="spacer">
+            <td colspan="2"/>
+        </tr>
+        <?php foreach ($t_collected_links AS $t_collected_link){?>
+            <tr border="1">
+                <td class="linkcollection-links"><?php echo string_display_links($t_collected_link->url);?></td>
+                <td class="linkcollection-notes">
+                    <?php foreach ($t_collected_link->bugnotes as $t_bug => $t_bugnotes){?>
+                        <?php foreach ($t_bugnotes as $t_bugnote){?>
+                            <span class='small'>
+                                <?php echo string_process_bugnote_link(config_get('bugnote_link_tag').$t_bugnote);?>
+                            </span>
+                        <?php }?>
+                    <?php }?>
+                </td>
+            </tr>
+        <?php } ?>
+    </tbody>
+</table>

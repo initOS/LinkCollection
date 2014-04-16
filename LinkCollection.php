@@ -27,7 +27,7 @@ class LinkCollectionPlugin extends MantisPlugin {
                 'EVENT_VIEW_BUG_EXTRA' => 'display_links',			# Display Links in bug view
                 'EVENT_CORE_READY' => 'initialise',					# Initialise Plugin after core is ready
                 'EVENT_LAYOUT_RESOURCES' => 'resources',            # Add resources (css)
-                'EVENT_MENU_MAIN_FRONT' => 'menu_link',      # Add menu link
+                'EVENT_MENU_MAIN' => 'menu_link',      # Add menu link
         );
     }
 

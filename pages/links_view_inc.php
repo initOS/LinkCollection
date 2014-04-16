@@ -1,12 +1,5 @@
 <?php
-	# Task 3: Ausgabe erstellen
-	#	Dazu:	Template entwerfen							- entworfen
-	#			Template umsetzen							- umgesetzt
-	#         	collapse-Umgebung implementieren 			- implementiert
-	#			expandierte Ansicht fuellen					- implementiert
-	#				TODO sichtbare Links anhand der Zugriffsrechte des aktuellen Nutzers filtern
-	#				TODO Sprachdatei einbinden
-	#			Wenn kein Link vorhanden, Nachricht ausgeben - implementiert
+	#	TODO sichtbare Links anhand der Zugriffsrechte des aktuellen Nutzers filtern
 
 # get the LinkCollection data of the current bug
 $t_collected_links = linkcollection_get_collection_bug( $p_bug_id, TRUE); #TODO sichtbare Links filtern
@@ -22,7 +15,7 @@ collapse_open( 'linkcollection' ); ?>
 		<tr>
 			<td class="form-title">
 			<?php collapse_icon( 'linkcollection' );
-				  echo 'Links' #TODO Sprachdatei einbinden ?>
+				  echo plugin_lang_get('Links'); ?>
 			</td>
 		</tr>
 
@@ -30,7 +23,7 @@ collapse_open( 'linkcollection' ); ?>
 		if ( 0 == $num_links ) { ?>
 			<tr>
 				<td class="center">
-					<?php echo 'Zu diesem Eintrag gibt es keine Links.' #TODO Sprachdatei ?>
+					<?php echo plugin_lang_get('no_links'); ?>
 				</td>
 			</tr>
 		<?php } #fi
@@ -46,22 +39,22 @@ collapse_open( 'linkcollection' ); ?>
             <?php # --- right column ------------------------------------------------------------------------?>
                 <td class='linkcollection-notes'>
                     <div>
-                        <span>Current issue:</span> <?php # TODO Sprachdatei einbinden
-                        $t_bugnotes = $t_collected_link->bugnotes[$p_bug_id];?>
-                        <?php foreach ($t_bugnotes as $t_bugnote){?>
+                        <span><?php echo plugin_lang_get('current_issue');?></span>
+                        <?php $t_bugnotes = $t_collected_link->bugnotes[$p_bug_id];
+                        foreach ($t_bugnotes as $t_bugnote){?>
                             <span class='small'>
                                  :<a href="<?php echo string_get_bugnote_view_url($t_bug, $t_bugnote);?>"
                                  title="<?php echo lang_get( 'bugnote_link_title' );?>"><?php echo bugnote_format_id( $t_bugnote)?></a>
                             </span>
                         <?php }?>
                     </div>
-                    <?php if (count($t_collected_link->bugs) > 1){ #TODO change output style similar to ~bugnote_id?>
+                    <?php if (count($t_collected_link->bugs) > 1){ ?>
                         <div>
-                            <span>Other issues:</span><?php # TODO Sprachdatei einbinden ?>
-                            <?php foreach ($t_collected_link->bugnotes as $t_bug => $t_bugnotes){?>
-                                <?php if ($t_bug == $p_bug_id) {
+                            <span><?php echo plugin_lang_get('other_issues');?></span>
+                            <?php foreach ($t_collected_link->bugnotes as $t_bug => $t_bugnotes){
+                                if ($t_bug == $p_bug_id) {
                                 	continue;
-                                }?>
+                                } ?>
                                 <?php foreach ($t_bugnotes as $t_bugnote){?>
                                     <span class='small'>
                                         <?php echo string_process_bugnote_link(config_get('bugnote_link_tag').$t_bugnote);?>
@@ -82,7 +75,7 @@ collapse_closed( 'linkcollection' ); ?>
 		<tr>
 			<td class="form-title">
 				<?php collapse_icon( 'linkcollection' );
-					  echo 'Links' #TODO Sprachdatei einbinden ?>
+					  echo plugin_lang_get('Links'); ?>
 			</td>
 		</tr>
 	</table>

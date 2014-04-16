@@ -3,7 +3,7 @@
 	td.center, td.form-title
 	.small
  */
-body{}
+
 td.linkcollection-notes{
 	background-color: #e8e8e8; 
 	color: #000000; 
@@ -19,3 +19,6 @@ td.linkcollection-links{
 	line-height: 1.4; 
 	vertical-align: top; 
 	}
+table#linklist td.linkcollection-links{
+    background-color: #e8e8e8; 
+    }	
