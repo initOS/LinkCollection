@@ -49,9 +49,11 @@
         $t_link_table = plugin_table('link');
         $query = "SELECT t.id FROM $t_link_table t WHERE t.url LIKE" . db_param();
         $result = db_query_bound( $query, array($t_url));
-        if (!db_num_rows( $result ))
+        if (!db_num_rows( $result )){
             return 0;
-        return db_fetch_array( $result )['id'];
+        }
+        $row = db_fetch_array( $result );
+        return $row['id'];
     }
 
     /**
@@ -168,13 +170,17 @@ function linkcollection_get_collection_project( $p_project_id, $p_thoroughly_mod
  * @return array array of collected links
 */
 function _linkcollection_get_collection($p_bug_bugnote_ids, $p_thoroughly_mode = FALSE){
+    $t_links = array();
+    if(!$p_bug_bugnote_ids){
+        return $t_links;
+    }
+
     global $g_cache_collected_links;
 
     if( !isset( $g_cache_collected_links ) ) {
         $g_cache_collected_links = array();
     }
 
-    $t_links = array();
     $t_relation_table = plugin_table('link_bugnote');
     $t_link_table = plugin_table('link');
     $t_bug_bugnote_ids = db_prepare_string(implode(',',$p_bug_bugnote_ids));
