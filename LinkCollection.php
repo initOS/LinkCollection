@@ -8,9 +8,9 @@ class LinkCollectionPlugin extends MantisPlugin {
         $this->description = 'Collects links from notices and presents them as a list.';    # plugin's description
         $this->page = '';                                                                   # Default plugin page
 
-        $this->version = '0.2';         # plugin version string
+        $this->version = '0.15';         # plugin version string
         $this->requires = array(        # Plugin dependencies, array of basename => version pairs
-            'MantisCore' => '1.2.15',   # Should always depend on an appropriate version of MantisBT
+            'MantisCore' => '1.2.11',   # Should always depend on an appropriate version of MantisBT
                 );
 
         $this->author = 'Katja Matthes';                # Author/team name
@@ -33,6 +33,13 @@ class LinkCollectionPlugin extends MantisPlugin {
 
     # Database schema
     function schema() {
+           $schema[] = Array("CreateTableSQL", Array(plugin_table('link'), "
+					id I NOTNULL UNSIGNED AUTOINCREMENT PRIMARY,
+					bug_id I NOTNULL UNSIGNED,
+					note_id I NOTNULL UNSIGNED,
+					link C(225) NOTNULL
+					"));
+           $schema[] = Array("DropTableSQL", Array(plugin_table('link')));
            $schema[] = Array('CreateTableSQL', Array(plugin_table('link'), "
 	           id  I       UNSIGNED NOTNULL PRIMARY AUTOINCREMENT,
                url C(500)  NOTNULL DEFAULT \" '' \"
