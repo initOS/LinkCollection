@@ -177,13 +177,14 @@ function _linkcollection_get_collection($p_bug_bugnote_ids, $p_thoroughly_mode =
     $t_links = array();
     $t_relation_table = plugin_table('link_bugnote');
     $t_link_table = plugin_table('link');
+    $t_bug_bugnote_ids = db_prepare_string(implode(',',$p_bug_bugnote_ids));
 
     $t_where_thoroughly = '';
     if ($p_thoroughly_mode){
         $t_where_thoroughly = "WHERE links.id IN (SELECT link_id FROM $t_relation_table
-                                WHERE bugnote_id IN (".implode(',',$p_bug_bugnote_ids)."))";
+                                WHERE bugnote_id IN (".$t_bug_bugnote_ids."))";
     } else {
-        $t_where_thoroughly = "WHERE bugnote_id IN (".implode(',',$p_bug_bugnote_ids).")";
+        $t_where_thoroughly = "WHERE bugnote_id IN (".$t_bug_bugnote_ids.")";
     }
 
 
