@@ -31,6 +31,7 @@ require_once( 'bugnote_api.php' );
 require_once( 'database_api.php' );
 require_once( 'authentication_api.php' );
 
+
     /**
      * Collect the link in.
      * @param char link's url

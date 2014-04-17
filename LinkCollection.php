@@ -92,7 +92,8 @@ class LinkCollectionPlugin extends MantisPlugin {
 
     # Initialise Plugin
     function initialise($p_event) {
-       require_once( 'files/linkcollection_api.php' );				# include API
+        //require_once( 'constant_api.php' );
+        require_once( 'files/linkcollection_api.php' );				# include API
 
         # If it is plugin's first use, extract links from all existing bug notes
         if(plugin_config_get('first_use') == 'true'){
@@ -105,7 +106,9 @@ class LinkCollectionPlugin extends MantisPlugin {
             for( $i=0; $i<$note_count; $i++ ){
                 $row = db_fetch_array( $result );
                 $t_note_id = $row['id'];								# Get note id
-                $this->search_and_store_links($t_note_id);	# Search for links and add them to database table
+                if (!$this->skip_bugnote($t_note_id)){
+                    $this->search_and_store_links($t_note_id);	# Search for links and add them to database table
+                }
             }
              # reset flag
     		plugin_config_set('first_use', 'false');
@@ -114,7 +117,9 @@ class LinkCollectionPlugin extends MantisPlugin {
 
     # When a new bugnote is added, seachr links and add them to database table.
     function new_bugnote( $p_event, $p_bug_id, $p_note_id ){
-        $this->search_and_store_links($p_note_id );
+        if (!$this->skip_bugnote($p_note_id)){
+            $this->search_and_store_links($p_note_id );
+        }
     }
 
     function delete_bugnote($p_event, $p_bug_id, $p_note_id){
@@ -129,6 +134,7 @@ class LinkCollectionPlugin extends MantisPlugin {
     }
 
     function edit_butnote($p_event, $p_bug_id, $p_note_id){
+        echo 'edit'; exit();
         # Delete connection
         $this->delete_bugnote($p_event, $p_bug_id, $p_note_id);
         # Reconnect
@@ -138,6 +144,12 @@ class LinkCollectionPlugin extends MantisPlugin {
     # Display link overview in bug view
     function display_links( $p_event, $p_bug_id ){
         include('pages/links_view_inc.php');
+    }
+
+    # Checks if bugnote should be ignored
+    private function skip_bugnote($p_bugnote_id){
+        $t_bugnote_is_private = bugnote_get_field( $p_bugnote_id, 'view_state' ) == VS_PRIVATE;
+        return $t_bugnote_is_private;
     }
 
     # Search links in a given note and add them zu database table
@@ -186,6 +198,8 @@ class LinkCollectionPlugin extends MantisPlugin {
 	            '<a href="' . plugin_page('view_all_links_page') . '">' . 'Links' .'</a>'
 	    );
 	}
+
+
 
 
 
