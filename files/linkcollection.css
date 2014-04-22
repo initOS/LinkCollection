@@ -1,24 +1,32 @@
 /* The following MantisBT default css classes are used:
-	table.width100
-	td.center, td.form-title
-	.small
+    table.width100
+    td.center, td.form-title
+    .small
  */
 
-td.linkcollection-notes{
-	background-color: #e8e8e8; 
-	color: #000000; 
-	width: 75%;
-	}
-td.linkcollection-notes span.small{
-	padding: 2px;
-	}
-td.linkcollection-links{
-	background-color: #c8c8e8; 
-	color: #000000; 
-	width: 25%; 
-	line-height: 1.4; 
-	vertical-align: top; 
-	}
+#linkcollection_open td.linkcollection-notes{
+    background-color: #e8e8e8; 
+    color: #000000; 
+    width: 75%;
+    }
+#linkcollection_open td.linkcollection-notes span.small{
+    padding: 2px;
+    }
+#linkcollection_open td.linkcollection-links{
+    background-color: #c8c8e8; 
+    color: #000000; 
+    width: 25%; 
+    line-height: 1.4; 
+    vertical-align: top; 
+    }
 table#linklist td.linkcollection-links{
     background-color: #e8e8e8; 
-    }	
+    word-break: break-all;
+    width: 75%;
+    }
+table#linklist td.linkcollection-notes{
+    background-color: #e8e8e8; 
+    }
+table#linklist td.linkcollection-date{
+    background-color: #e8e8e8; 
+    }

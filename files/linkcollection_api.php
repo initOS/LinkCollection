@@ -41,10 +41,12 @@ require_once( 'authentication_api.php' );
         # Get and return id if link is already stored
         $stored = linkcollection_get_link_id($t_url);
         if ($stored){
+            linkcollection_date_update($stored);
             return $stored;
         }
         # Else: store link and return id
-        db_query_bound('INSERT INTO ' . plugin_table('link') . '(url) VALUES (?)', array($t_url) );
+        db_query_bound('INSERT INTO ' . plugin_table('link') . '(url, first_submit, last_submit) VALUES (?, ?, ?)',
+            array($t_url, db_now(), db_now()) );
         return db_insert_id(plugin_table('link'));
     }
 
@@ -53,15 +55,34 @@ require_once( 'authentication_api.php' );
      * @param char link's url
      * @return int - ID of link
      */
-    function linkcollection_get_link_id($t_url){
+    function linkcollection_get_link_id($p_url){
         $t_link_table = plugin_table('link');
         $query = "SELECT t.id FROM $t_link_table t WHERE t.url LIKE" . db_param();
-        $result = db_query_bound( $query, array($t_url));
+        $result = db_query_bound( $query, array($p_url));
         if (!db_num_rows( $result )){
             return 0;
         }
         $row = db_fetch_array( $result );
         return $row['id'];
+    }
+
+    /**
+     * Update the last_submit field of the link
+     * @param int $p_link_id link id
+     * @return bool
+     * @access public
+     */
+    function linkcollection_date_update($p_link_id){
+        $c_link_id = db_prepare_int( $p_link_id );
+        $t_link_table = plugin_table('link');
+
+        $query = "UPDATE $t_link_table
+            SET last_submit=" . db_param() . "
+            WHERE id=" . db_param();
+        db_query_bound( $query, Array( db_now(), $c_link_id ) );
+
+        # db_query errors if there was a problem so:
+        return true;
     }
 
     /**
@@ -76,8 +97,8 @@ require_once( 'authentication_api.php' );
         $query = "SELECT * FROM $t_link_bugnote_table
         WHERE link_id=" . db_param() . " AND bugnote_id=" . db_param();
         $result = db_query_bound( $query, Array( $p_link_id, $p_bugnote_id ) );
-	    return( db_num_rows( $result ) > 0 );
-	}
+        return( db_num_rows( $result ) > 0 );
+    }
 
 
 /**
@@ -85,10 +106,12 @@ require_once( 'authentication_api.php' );
  */
 class CollectedLink {
     var $id;
-	var $url;
-	var $projects = array();           //array with project ids
-	var $bugs = array();               //array of array with bug ids, key is project_id
-	var $bugnotes = array();           //array of array with bugnote ids, key is bug_id
+    var $url;
+    var $first_submit;
+    var $last_submit;
+    var $projects = array();           //array with project ids
+    var $bugs = array();               //array of array with bug ids, key is project_id
+    var $bugnotes = array();           //array of array with bugnote ids, key is bug_id
 }
 
 
@@ -103,22 +126,21 @@ class CollectedLink {
  */
 # inspired by bugnote_api -> function bugnote_get_all_bugnotes( $p_bug_id )
 function linkcollection_get_collection_bug( $p_bug_id, $p_thoroughly_mode = FALSE ) {
-	global $g_cache_collected_bug_links;
+    global $g_cache_collected_bug_links;
 
-	if( !isset( $g_cache_collected_bug_links ) ) {
-		$g_cache_collected_bug_links = array();
-	}
+    if( !isset( $g_cache_collected_bug_links ) ) {
+        $g_cache_collected_bug_links = array();
+    }
 
-	if( !isset( $g_cache_collected_bug_links[(int)$p_bug_id] ) ) {
+    if( !isset( $g_cache_collected_bug_links[(int)$p_bug_id] ) ) {
         #get affected bugnote ids as array
-	    $t_bug_bugnotes = bugnote_get_all_bugnotes( $p_bug_id );
-	    $t_bug_bugnote_ids = array_map(function($a){return $a->id;}, $t_bug_bugnotes);
+        $t_bug_bugnotes = bugnote_get_all_bugnotes( $p_bug_id );
+        $t_bug_bugnote_ids = array_map(function($a){return $a->id;}, $t_bug_bugnotes);
 
 
-	    $g_cache_collected_bug_links[(int)$p_bug_id] = _linkcollection_get_collection($t_bug_bugnote_ids, $p_thoroughly_mode);
-	}
-
-	return $g_cache_collected_bug_links[(int)$p_bug_id];
+        $g_cache_collected_bug_links[(int)$p_bug_id] = _linkcollection_get_collection($t_bug_bugnote_ids, $p_thoroughly_mode);
+    }
+    return $g_cache_collected_bug_links[(int)$p_bug_id];
 }
 
 /**
@@ -199,22 +221,24 @@ function _linkcollection_get_collection($p_bug_bugnote_ids, $p_thoroughly_mode =
     }
 
 
-    $query = "SELECT links.id, links.url, relation.bugnote_id
-    FROM $t_link_table AS links
-    JOIN $t_relation_table AS relation
-    ON (links.id = relation.link_id)
-    $t_where_thoroughly
-    ORDER BY links.url";
+    $query = "SELECT links.id, links.url, links.first_submit, links.last_submit, relation.bugnote_id
+        FROM $t_link_table AS links
+        JOIN $t_relation_table AS relation
+        ON (links.id = relation.link_id)
+        $t_where_thoroughly
+        ORDER BY links.url";
 
     $t_result = db_query_bound( $query, array());
 
     while( $row = db_fetch_array( $t_result ) ) {
-	    if (!array_key_exists($row['id'],$g_cache_collected_links)){ #create new CollectedLink
-	    $t_link = new CollectedLink();
-	    $t_link->id = $row['id'];
-	    $t_link->url = $row['url'];
-	    $t_links[] = $t_link;
-	    $g_cache_collected_links[$t_link->id] = $t_link;
+        if (!array_key_exists($row['id'],$g_cache_collected_links)){ #create new CollectedLink
+        $t_link = new CollectedLink();
+        $t_link->id = $row['id'];
+        $t_link->url = $row['url'];
+        $t_link->first_submit = $row['first_submit'];
+        $t_link->last_submit = $row['last_submit'];
+        $t_links[] = $t_link;
+        $g_cache_collected_links[$t_link->id] = $t_link;
         } else {
             $t_link = $g_cache_collected_links[$row['id']]; #load CollectedLin
         }

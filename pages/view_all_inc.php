@@ -29,6 +29,7 @@ require_once( 'helper_api.php' );
 $t_project_id = helper_get_current_project();
 
 $t_collected_links = linkcollection_get_collection_project($t_project_id, FALSE);
+$t_normal_date_format = config_get( 'short_date_format' );
 ?>
 <!-- Link list -->
 <br/>
@@ -36,6 +37,8 @@ $t_collected_links = linkcollection_get_collection_project($t_project_id, FALSE)
     <tbody>
         <tr class="row-category">
             <td><?php echo plugin_lang_get('url');?></td>
+            <td><?php echo plugin_lang_get('first_submit');?></td>
+            <td><?php echo plugin_lang_get('last_submit');?></td>
             <td><?php echo plugin_lang_get('bugnotes');?></td>
         </tr>
         <tr class="spacer">
@@ -44,6 +47,8 @@ $t_collected_links = linkcollection_get_collection_project($t_project_id, FALSE)
         <?php foreach ($t_collected_links AS $t_collected_link){?>
             <tr border="1">
                 <td class="linkcollection-links"><?php echo string_display_links($t_collected_link->url);?></td>
+                <td class="linkcollection-date"><?php echo date( $t_normal_date_format, $t_collected_link->first_submit);?></td>
+                <td class="linkcollection-date"><?php echo date( $t_normal_date_format, $t_collected_link->last_submit);?></td>
                 <td class="linkcollection-notes">
                     <?php foreach ($t_collected_link->bugnotes as $t_bug => $t_bugnotes){?>
                         <?php foreach ($t_bugnotes as $t_bugnote){?>

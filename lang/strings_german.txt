@@ -20,3 +20,5 @@ $s_plugin_LinkCollection_current_issue = 'Aktueller Bug:';
 $s_plugin_LinkCollection_other_issues = 'Andere Bugs:';
 $s_plugin_LinkCollection_url = 'URL';
 $s_plugin_LinkCollection_bugnotes = 'Notizen';
+$s_plugin_LinkCollection_first_submit = 'Erste Erwähnung';
+$s_plugin_LinkCollection_last_submit = 'Letzte Erwähnung';

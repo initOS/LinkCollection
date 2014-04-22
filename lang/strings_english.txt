@@ -17,6 +17,8 @@
 $s_plugin_LinkCollection_Links = 'Links';
 $s_plugin_LinkCollection_no_links = 'There are no links for this entry.';
 $s_plugin_LinkCollection_current_issue = 'Current issue:';
-$s_plugin_LinkCollection_other_issue = 'Other issues:';
+$s_plugin_LinkCollection_other_issues = 'Other issues:';
 $s_plugin_LinkCollection_url = 'URL';
 $s_plugin_LinkCollection_bugnotes = 'Notes';
+$s_plugin_LinkCollection_first_submit = 'First Submit';
+$s_plugin_LinkCollection_last_submit = 'Last Submit';
