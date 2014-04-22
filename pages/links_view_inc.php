@@ -51,11 +51,9 @@ collapse_open( 'linkcollection' ); ?>
             <?php # --- left column ------------------------------------------------------------------------?>
                  <td class='linkcollection-links'>
                      <?php echo string_display_links($t_collected_link->url);?><br/>
-                     <?php /* ?>
-                     <span class="small"><?php echo date( $t_normal_date_format, $t_collected_link->first_submit);?> -
-                         <?php echo date( $t_normal_date_format, $t_collected_link->last_submit);?>
+                     <span class="small"><?php echo plugin_lang_get('last_submit');?>:
+                        <?php echo date( $t_normal_date_format, $t_collected_link->last_submit);?>
                      </span>
-                     <?php */?>
                  </td>
             <?php # --- right column ------------------------------------------------------------------------?>
                 <td class='linkcollection-notes'>

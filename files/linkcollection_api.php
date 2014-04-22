@@ -226,7 +226,7 @@ function _linkcollection_get_collection($p_bug_bugnote_ids, $p_thoroughly_mode =
         JOIN $t_relation_table AS relation
         ON (links.id = relation.link_id)
         $t_where_thoroughly
-        ORDER BY links.url";
+        ORDER BY links.last_submit DESC";
 
     $t_result = db_query_bound( $query, array());
 
