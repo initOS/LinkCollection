@@ -140,7 +140,6 @@ class LinkCollectionPlugin extends MantisPlugin {
     }
 
     function edit_butnote($p_event, $p_bug_id, $p_note_id){
-        echo 'edit'; exit();
         # Delete connection
         $this->delete_bugnote($p_event, $p_bug_id, $p_note_id);
         # Reconnect
